@@ -3,44 +3,34 @@ import { AppLayout } from "@/layouts";
 import classes from "./movement-list.page.module.css";
 import { MovementListTable, MovementListHeader } from "./components";
 import { MovementVM } from "./movement-list.vm";
-
-export const mockMovementsListData: MovementVM[] = [
-  {
-    id: "1",
-    description: "Nómina noviembre",
-    amount: 900,
-    balance: 1490,
-    transaction: new Date("2019-12-09T21:30:00"),
-    realTransaction: new Date("2019-12-09T21:30:00"),
-    accountId: "1",
-  },
-  {
-    id: "2",
-    description: "Alquiler noviembre",
-    amount: -400,
-    balance: 590,
-    transaction: new Date("2019-12-07T11:30:00"),
-    realTransaction: new Date("2019-12-08T20:00:10"),
-    accountId: "1",
-  },
-  {
-    id: "3",
-    description: "Gastos móvil",
-    amount: -24,
-    balance: 990,
-    transaction: new Date("2019-12-01T07:01:00"),
-    realTransaction: new Date("2019-12-02T12:00:10"),
-    accountId: "1",
-  },
-];
+import { Account, getAccountInfo, getMovements } from "./api";
+import { mapMovementListFromApiToVm } from "./movement-list.mapper";
+import { useParams } from "react-router-dom";
 
 export const MovementListPage: React.FC = () => {
-  const [movementsList] = React.useState<MovementVM[]>(mockMovementsListData);
+  const [movementsList, setMovementsList] = React.useState<MovementVM[]>([]);
+  const [accountInfo, setAccountInfo] = React.useState<Account>({
+    name: "",
+    iban: "",
+    balance: 0,
+    id: "",
+  });
+  const { id } = useParams();
+
+  React.useEffect(() => {
+    if (id) {
+      getMovements(id).then((result) =>
+        setMovementsList(mapMovementListFromApiToVm(result)),
+      );
+      getAccountInfo(id).then((result) => setAccountInfo(result));
+    }
+    console.log(accountInfo);
+  }, []);
 
   return (
     <AppLayout>
       <div className={classes.root}>
-        <MovementListHeader />
+        <MovementListHeader accountInfo={accountInfo} />
         <MovementListTable movementsList={movementsList} />
       </div>
     </AppLayout>

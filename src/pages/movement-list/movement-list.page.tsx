@@ -24,7 +24,6 @@ export const MovementListPage: React.FC = () => {
       );
       getAccountInfo(id).then((result) => setAccountInfo(result));
     }
-    console.log(accountInfo);
   }, []);
 
   return (
